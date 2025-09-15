@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  schema: "analytics"
+}
+
+select distinct
+  order_id,
+  customer_id,
+  cast(replace(order_date, '/', '-') as date) as order_date,
+  coalesce(amount, 0) as amount,
+  lower(status) as status
+from
+  ${ref("sales_data")}

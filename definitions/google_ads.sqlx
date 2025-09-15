@@ -1,0 +1,6 @@
+config {
+  type: "table",
+  schema: "raw"
+}
+
+select * from `project-96b123a3-d2f8-4312-b92.raw.google_ads`

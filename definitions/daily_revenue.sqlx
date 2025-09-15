@@ -1,0 +1,14 @@
+config {
+  type: "table",
+  schema: "analytics"
+}
+
+select
+  order_date,
+  sum(amount) as total_revenue,
+  count(distinct order_id) as total_orders
+from
+  ${ref("sales_cleaned")}
+where status = "completed"
+group by order_date
+order by order_date

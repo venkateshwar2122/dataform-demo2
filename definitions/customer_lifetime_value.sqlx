@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  schema: "analytics"
+}
+
+select
+  customer_id,
+  sum(amount) as lifetime_value,
+  count(distinct order_id) as total_orders
+from
+  ${ref("sales_cleaned")}
+where status = "completed"
+group by customer_id

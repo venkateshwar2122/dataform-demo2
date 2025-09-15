@@ -1,0 +1,7 @@
+config {
+  type: "assertion"
+}
+
+select *
+from ${ref("sales_cleaned")}
+where amount < 0
