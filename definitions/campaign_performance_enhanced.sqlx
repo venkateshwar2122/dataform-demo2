@@ -1,0 +1,25 @@
+config {
+  type: "table",
+  schema: "analytics2",
+  description: "Campaign-level performance using attributed revenue (last-touch) and total spend."
+}
+
+with spend_by_campaign as (
+  select campaign_id, source, sum(spend) as total_spend
+  from ${ref("ads_cleaned")}
+  group by campaign_id, source
+),
+attrib as (
+  select * from ${ref("attribution")}
+)
+select
+  s.campaign_id,
+  s.source,
+  s.total_spend,
+  coalesce(a.attributed_revenue, 0) as attributed_revenue,
+  coalesce(a.attributed_revenue, 0) - s.total_spend as roi_abs,
+  case when s.total_spend = 0 then null else (coalesce(a.attributed_revenue, 0) - s.total_spend) / s.total_spend end as roi_pct
+from spend_by_campaign s
+left join attrib a
+  on s.campaign_id = a.campaign_id and s.source = a.source
+order by roi_pct desc

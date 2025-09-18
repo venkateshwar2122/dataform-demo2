@@ -1,0 +1,17 @@
+config {
+  type: "table",
+  schema: "analytics",
+  description: "Daily revenue after subtracting refunds; partitioned by order_date",
+  partitionBy: "order_date"
+}
+
+select
+  dr.order_date,
+  dr.total_revenue,
+  coalesce(sum(r.amount), 0) as total_refunds,
+  dr.total_revenue - coalesce(sum(r.amount), 0) as total_revenue_net
+from ${ref("daily_revenue")} dr
+left join ${ref("refunds_cleaned")} r
+  on r.refund_date = dr.order_date
+group by dr.order_date, dr.total_revenue
+order by dr.order_date

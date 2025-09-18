@@ -1,0 +1,21 @@
+config {
+  type: "table",
+  schema: "analytics2",
+  description: "Cleaned order items with computed line_total; depends on sales_cleaned.",
+  partitionBy: "order_date"
+}
+
+select
+  oi.order_item_id,
+  oi.order_id,
+  oi.product_id,
+  coalesce(safe_cast(oi.quantity as int64), 0) as quantity,
+  coalesce(safe_cast(oi.price as float64), 0) as unit_price, -- fixed
+  coalesce(
+    coalesce(safe_cast(oi.quantity as int64), 0) * coalesce(safe_cast(oi.price as float64), 0),
+    0
+  ) as line_total,
+  s.order_date
+from ${ref("order_items")} oi
+left join ${ref("sales_cleaned")} s
+  on oi.order_id = s.order_id

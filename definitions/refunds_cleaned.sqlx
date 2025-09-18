@@ -1,0 +1,14 @@
+config {
+  type: "table",
+  schema: "analytics2",
+  description: "Cleaned refunds, partitioned by refund_date",
+  partitionBy: "refund_date"
+}
+
+select
+  refund_id,
+  order_id,
+  refund_date, -- already DATE, no need to replace
+  coalesce(safe_cast(amount as float64), 0) as amount,
+  lower(trim(reason)) as reason
+from ${ref("refunds")}

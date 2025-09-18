@@ -1,6 +1,6 @@
 config {
   type: "table",
-  schema: "analytics"
+  schema: "analytics2"
 }
 
 select distinct

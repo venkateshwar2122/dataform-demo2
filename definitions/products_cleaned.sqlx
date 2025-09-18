@@ -1,0 +1,12 @@
+config {
+  type: "table",
+  schema: "analytics2",
+  description: "Normalized product catalog"
+}
+
+select
+  product_id,
+  name as product_name, -- rename here
+  category,
+  coalesce(safe_cast(base_price as float64), 0) as price -- rename + safe cast
+from ${ref("products")}

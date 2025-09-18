@@ -1,0 +1,22 @@
+config {
+  type: "table",
+  schema: "analytics2",
+  description: "Order-level enriched dataset (items_count, computed_amount, mismatch flag)."
+}
+
+select
+  s.order_id,
+  s.customer_id,
+  s.order_date,
+  s.amount as original_amount,
+  coalesce(sum(oi.line_total), 0) as computed_amount,
+  count(distinct oi.order_item_id) as items_count,
+  case 
+    when abs(coalesce(sum(oi.line_total), 0) - s.amount) > 0.01 
+    then true else false 
+  end as amount_mismatch
+from ${ref("sales_cleaned")} s
+left join ${ref("order_items_cleaned")} oi
+  on s.order_id = oi.order_id
+group by
+  s.order_id, s.customer_id, s.order_date, s.amount

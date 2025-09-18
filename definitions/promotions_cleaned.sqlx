@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  schema: "analytics2",
+  description: "Normalized promotions with clean discount info."
+}
+
+select
+  promo_id,
+  product_id,
+  coalesce(safe_cast(discount_pct as float64), 0) as discount_pct,
+  start_date,
+  end_date
+from ${ref("promotions")}

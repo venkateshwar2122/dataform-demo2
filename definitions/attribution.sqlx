@@ -1,0 +1,32 @@
+config {
+  type: "table",
+  schema: "analytics2",
+  description: "Last-touch attribution (7-day lookback): attributed revenue by campaign and source."
+}
+
+with candidate_ads as (
+  select
+    s.order_id,
+    s.order_date,
+    a.campaign_id,
+    a.source,
+    a.campaign_date as ad_date,   -- ✅ use campaign_date
+    row_number() over (
+      partition by s.order_id
+      order by a.campaign_date desc
+    ) as rn
+  from ${ref("sales_enriched")} s
+  join ${ref("ads_cleaned")} a
+    on a.campaign_date between date_sub(s.order_date, interval 7 day) and s.order_date
+)
+select
+  ca.campaign_id,
+  ca.source,
+  count(distinct ca.order_id) as orders_attributed,
+  sum(se.original_amount) as attributed_revenue
+from candidate_ads ca
+join ${ref("sales_enriched")} se
+  on se.order_id = ca.order_id
+where ca.rn = 1
+group by ca.campaign_id, ca.source
+order by attributed_revenue desc

@@ -1,15 +1,15 @@
 config {
   type: "table",
-  schema: "analytics"
+  schema: "analytics2"
 }
 
 select
-  a.date,
+  a.campaign_date as date,
   a.source,
   sum(a.spend) as total_spend,
   r.total_revenue,
   (r.total_revenue - sum(a.spend)) as roi
 from ${ref("ads_cleaned")} a
 join ${ref("daily_revenue")} r
-  on a.date = r.order_date
-group by a.date, a.source, r.total_revenue
+  on a.campaign_date = r.order_date
+group by a.campaign_date, a.source, r.total_revenue
