@@ -3,7 +3,7 @@ config {
   schema: "analytics"
 }
 
-select
+SELECT
   campaign_id,
   cast(date as date) as campaign_date,
   spend,
